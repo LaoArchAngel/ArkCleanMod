@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ArkCleanMod
+namespace ArkCleanMod.Processors
 {
     public interface IModProcessor
     {
