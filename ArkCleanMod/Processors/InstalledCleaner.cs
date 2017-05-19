@@ -52,10 +52,7 @@ namespace ArkCleanMod.Processors
             if (!(file is FileInfo))
                 return false;
 
-            if (file.Extension != "info")
-                return false;
-
-            return file.Name == "mod" || file.Name == "modmeta";
+            return file.Name == "mod.info" || file.Name == "modmeta.info";
         }
     }
 }
