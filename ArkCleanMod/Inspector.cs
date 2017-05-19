@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -11,6 +12,7 @@ namespace ArkCleanMod
         private readonly int ScanInterval;
         private readonly string BasePath;
         private readonly DirectoryInfo BaseDir;
+        private readonly Dictionary<long, ModInfo> Mods = new Dictionary<long, ModInfo>();
 
         public Inspector(int scanInterval, string basePath)
         {
@@ -40,27 +42,31 @@ namespace ArkCleanMod
             }
         }
 
-        Task Scan(CancellationToken cancel)
+        private async Task ScanAsync(CancellationToken cancel)
         {
-            DirectoryInfo downloads = new DirectoryInfo(Path.Combine(BaseDir.FullName, @"workshop\content\346110"));
+            DirectoryInfo downloads = new DirectoryInfo(Path.Combine(BaseDir.FullName, @"content\346110"));
+            DirectoryInfo gameDir = new DirectoryInfo(Path.Combine(BaseDir.FullName, @"common\ARK"));
 
             if (!downloads.Exists)
-                return null;
+                await Task.CompletedTask.ConfigureAwait(false);
+
+            var tasks = new List<Task>();
 
             foreach (DirectoryInfo modDownload in downloads.EnumerateDirectories())
             {
-                DirectoryInfo modInstall = FindInstallFolder(modDownload.Name);
-
-                if (modInstall != null)
-                {
-                    
-                }
+                tasks.Add(Task.Run(() => AddMod(modDownload, gameDir, downloads), cancel));
             }
+
+            await Task.WhenAll(tasks.ToArray()).ConfigureAwait(false);
         }
 
-        private DirectoryInfo FindInstallFolder(string modId)
+        private void AddMod(DirectoryInfo modDownload, DirectoryInfo gameDir, DirectoryInfo downloads)
         {
-            DirectoryInfo installFolder = new DirectoryInfo(Path.Combine(BaseDir.FullName, @""));
+            if (!long.TryParse(modDownload.Name, out long modId))
+                return;
+
+            var mod = new ModInfo(gameDir, downloads, modId);
+            Mods.Add(modId, mod);
         }
     }
 }
