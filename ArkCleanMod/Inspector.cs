@@ -9,55 +9,45 @@ namespace ArkCleanMod
 {
     public class Inspector
     {
-        private readonly int ScanInterval;
-        private readonly string BasePath;
-        private readonly DirectoryInfo BaseDir;
-        private readonly Dictionary<long, ModInfo> Mods = new Dictionary<long, ModInfo>();
+        private readonly int _scanInterval;
 
-        public Inspector(int scanInterval, string basePath)
+
+        private readonly DirectoryInfo _installDir, _downloadDir;
+        private readonly Dictionary<long, ModInfo> _mods = new Dictionary<long, ModInfo>();
+
+        public Inspector(int scanInterval, string downloadPath, string installPath)
         {
-            ScanInterval = scanInterval;
-            BasePath = basePath;
+            _scanInterval = scanInterval;
+            _downloadDir = new DirectoryInfo(downloadPath);
+            _installDir = new DirectoryInfo(installPath);
 
-            BaseDir = new DirectoryInfo(BasePath);
-
-            if(!BaseDir.Exists)
-                throw new ArgumentException("The base directory does for steam mods does not exist.  Please supply a valid path.", basePath);
-
-            bool foundWorkshop = BaseDir.GetDirectories("workshop").Any();
-            bool foundCommon = BaseDir.GetDirectories("common").Any();
-
-            if (!(foundWorkshop && foundCommon))
-            {
-                throw new ArgumentException(
-                    "The base directory does not appear to be the correct path.  Please find your steamapps folder and try again.  The steamapps folder is generally located directly inside the steam install directory (eg. C:\\Program Files (x86)\\Steam\\steamapps)");
-            }
+            if(!_installDir.Exists) throw new ArgumentException("The given mod installation path cannot be found.", nameof(installPath));
+            if(!_downloadDir.Exists) throw new ArgumentException("The given mod download path cannot be found.", nameof(downloadPath));
         }
 
         public void Start()
         {
-            while (!stopCalled)
-            {
+            //while (!stopCalled)
+            //{
                 
-            }
+            //}
         }
 
-        private async Task ScanAsync(CancellationToken cancel)
+        public void Stop()
         {
-            DirectoryInfo downloads = new DirectoryInfo(Path.Combine(BaseDir.FullName, @"content\346110"));
-            DirectoryInfo gameDir = new DirectoryInfo(Path.Combine(BaseDir.FullName, @"common\ARK"));
+            
+        }
 
-            if (!downloads.Exists)
-                await Task.CompletedTask.ConfigureAwait(false);
-
+        private Task ScanAsync(CancellationToken cancel)
+        {
             var tasks = new List<Task>();
 
-            foreach (DirectoryInfo modDownload in downloads.EnumerateDirectories())
+            foreach (DirectoryInfo modDownload in _downloadDir.EnumerateDirectories())
             {
-                tasks.Add(Task.Run(() => AddMod(modDownload, gameDir, downloads), cancel));
+                tasks.Add(Task.Run(() => AddMod(modDownload, _installDir, _downloadDir), cancel));
             }
 
-            await Task.WhenAll(tasks.ToArray()).ConfigureAwait(false);
+            return Task.WhenAll(tasks.ToArray());
         }
 
         private void AddMod(DirectoryInfo modDownload, DirectoryInfo gameDir, DirectoryInfo downloads)
@@ -66,7 +56,7 @@ namespace ArkCleanMod
                 return;
 
             var mod = new ModInfo(gameDir, downloads, modId);
-            Mods.Add(modId, mod);
+            _mods.Add(modId, mod);
         }
     }
 }
