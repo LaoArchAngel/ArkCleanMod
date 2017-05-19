@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace ArkCleanMod
 {
-    internal class ModInfo
+    public class ModInfo
     {
         public ModInfo(DirectoryInfo installDir, DirectoryInfo downloadDir, long modId)
         {
