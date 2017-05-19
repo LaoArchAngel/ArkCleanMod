@@ -6,12 +6,12 @@ namespace ArkCleanMod
 {
     internal class ModInfo
     {
-        public ModInfo(DirectoryInfo gameDir, DirectoryInfo workshopDir, long modId)
+        public ModInfo(DirectoryInfo installDir, DirectoryInfo downloadDir, long modId)
         {
             ModId = modId;
-            DownloadDir = new DirectoryInfo(Path.Combine(workshopDir.FullName, $"workshop\\content\\{modId}"));
-            InstallDir = new DirectoryInfo(Path.Combine(gameDir.FullName, $"ShooterGame\\Content\\Mods\\{modId}"));
-            DotModFile = new FileInfo(Path.Combine(gameDir.FullName, $"ShooterGame\\Content\\Mods\\{modId}.mod"));
+            DownloadDir = new DirectoryInfo(Path.Combine(downloadDir.FullName, modId.ToString()));
+            InstallDir = new DirectoryInfo(Path.Combine(installDir.FullName, modId.ToString()));
+            DotModFile = new FileInfo(Path.Combine(installDir.FullName, $"{modId}.mod"));
         }
 
         public long ModId { get; }
@@ -22,7 +22,7 @@ namespace ArkCleanMod
         {
             get
             {
-                if (!InstallDir.Exists || !DotModFile.Exists)
+                if (!(InstallDir.Exists && DotModFile.Exists))
                 {
                     return null;
                 }
