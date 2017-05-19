@@ -33,10 +33,17 @@ namespace ArkCleanMod.Processors
 
             foreach (FileSystemInfo fileSystemInfo in downloadDir.EnumerateFileSystemInfos())
             {
-                if (!IsKeyFile(fileSystemInfo))
+                if (IsKeyFile(fileSystemInfo))
                 {
-                    fileSystemInfo.Delete();
+                    continue;
                 }
+
+                var folder = fileSystemInfo as DirectoryInfo;
+
+                if (folder != null)
+                    folder.Delete(true);
+                else
+                    fileSystemInfo.Delete();
             }
         }
 
