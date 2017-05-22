@@ -1,7 +1,15 @@
 ﻿using System;
 
-namespace ArkCleanMod.Mods {
-    public interface IInstalledMod {
+namespace ArkCleanMod.Mods
+{
+    /// <summary>
+    ///     Represents an installed mod
+    /// </summary>
+    public interface IInstalledMod
+    {
+        /// <summary>
+        ///     The UTC date/time when the mod was last updated.
+        /// </summary>
         DateTime? InstallUpdate { get; }
 
         /// <summary>
